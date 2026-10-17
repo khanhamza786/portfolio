@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeCraft — Hamza | Web Developer Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --bg-dark: #000;
+      --card-bg: transparent;
+      --card-border: rgba(255, 255, 255, 0.14);
+      --card-border-hover: rgba(139, 92, 246, 0.5);
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+      --text-subtle: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Minimal Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(139, 92, 246, 0.45);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(139, 92, 246, 0.7);
+    }
+
+    /* Fixed Canvas Animation Layer */
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Main Content Layer directly on background */
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* Navigation Bar */
+    header.navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 50;
+      padding: 22px 0;
+      background: transparent;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-bracket {
+      color: #8b5cf6;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.15rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: #fff;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #8b5cf6;
+      border-radius: 2px;
+    }
+
+    .btn-hire {
+      background: var(--primary-gradient);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-hire:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6);
+    }
+
+    /* Common Components */
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #c4b5fd;
+      margin-bottom: 18px;
+    }
+
+    .pill-badge.center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 3.6vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .section-title.center {
+      text-align: center;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #a5b4fc 0%, #e9d5ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Clean Transparent Cards (No Blur Layer) */
+    .glass-card {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 28px;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .glass-card:hover {
+      border-color: var(--card-border-hover);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: #fff;
+      padding: 13px 26px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(139, 92, 246, 0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #fff;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px);
+    }
+
+    /* SECTION 1: HERO */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 130px 0 80px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+      gap: 48px;
+    }
+
+    .hero-title {
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+      color: #cbd5e1;
+      font-size: 1.12rem;
+      line-height: 1.65;
+      max-width: 530px;
+      margin-bottom: 32px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 44px;
+    }
+
+    .tech-stack-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .tech-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tech-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 9px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .tech-icon-box:hover {
+      transform: translateY(-3px);
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    /* Floating Code Card directly on background */
+    .hero-code-card {
+      background: transparent;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 16px;
+      padding: 22px 26px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86rem;
+      position: relative;
+    }
+
+    .code-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      color: #cbd5e1;
+      font-size: 0.78rem;
+    }
+
+    .code-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .code-content pre {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+
+    .c-keyword { color: #f43f5e; }
+    .c-var { color: #38bdf8; }
+    .c-prop { color: #f1f5f9; }
+    .c-str { color: #fde047; }
+    .c-comment { color: #94a3b8; font-style: italic; }
+
+    /* SECTION 2: ABOUT ME */
+    #about {
+      padding: 100px 0;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 22px;
+      border-radius: 16px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--card-border-hover);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c4b5fd;
+      flex-shrink: 0;
+    }
+
+    .stat-num {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* SECTION 3: SKILLS */
+    #skills {
+      padding: 100px 0;
+    }
+
+    .section-header-center {
+      text-align: center;
+      max-width: 650px;
+      margin: 0 auto 56px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px 36px;
+    }
+
+    .skill-item {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 22px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .skill-item:hover {
+      border-color: var(--card-border-hover);
+      transform: translateY(-2px);
+    }
+
+    .skill-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .skill-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .skill-icon-thumb {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .skill-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .skill-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .skill-bar {
+      height: 100%;
+      background: var(--primary-gradient);
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+      transition: width 1s ease-out;
+    }
+
+    /* SECTION 4: PROJECTS */
+    #projects {
+      padding: 100px 0;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+
+    .project-card {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--card-border-hover);
+    }
+
+    .project-preview {
+      width: 100%;
+      height: 180px;
+      background: transparent;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .project-num-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #c4b5fd;
+      z-index: 2;
+    }
+
+    .project-body {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .project-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .project-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .project-link {
+      color: #a5b4fc;
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s, gap 0.2s;
+    }
+
+    .project-link:hover {
+      color: #d8b4fe;
+      gap: 10px;
+    }
+
+    .pagination-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .dot.active {
+      background: #8b5cf6;
+      width: 22px;
+      border-radius: 4px;
+    }
+
+    /* SECTION 5: CONTACT & TESTIMONIAL */
+    #contact {
+      padding: 100px 0 60px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 0.9fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .testimonial-card {
+      position: relative;
+    }
+
+    .quote-icon {
+      color: #a78bfa;
+      font-size: 2.2rem;
+      line-height: 1;
+      margin-bottom: 12px;
+      font-family: serif;
+    }
+
+    .testimonial-quote {
+      color: #f1f5f9;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      font-style: italic;
+      margin-bottom: 22px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #d946ef);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+
+    .author-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .author-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .social-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+    }
+
+    .social-icons-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .social-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: transform 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .social-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(139, 92, 246, 0.6);
+      color: #fff;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.92rem;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+
+    .contact-item:hover {
+      color: #c4b5fd;
+    }
+
+    .contact-icon {
+      color: #a5b4fc;
+    }
+
+    /* FOOTER */
+    footer.site-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px 0;
+      background: transparent;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-subtle);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-grid, .about-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FIXED CANVAS ANIMATION LAYER -->
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <!-- CONTENT OVERLAY LAYER -->
+  <div class="content-wrapper">
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="#hero" class="brand-logo">
+          <span class="logo-bracket">&lt;/&gt;</span> CodeCraft
+        </a>
+        <ul class="nav-links">
+          <li><a href="#hero" class="nav-link active">Home</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#skills" class="nav-link">Skills</a></li>
+          <li><a href="projects.html" class="nav-link">Projects</a></li>
+          <li><a href="#skills" class="nav-link">Blog</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <a href="#contact" class="btn-hire">Hire Me ↗</a>
+      </div>
+    </header>
+
+    <!-- SECTION 1: HERO -->
+    <section id="hero">
+      <div class="container hero-grid">
+        <div class="hero-text-col">
+          <div class="pill-badge">I'M A WEB DEVELOPER</div>
+          <h1 class="hero-title">
+            Hi, I’m <span class="gradient-text">Hamza</span><br>
+            I build things for the web.
+          </h1>
+          <p class="hero-subtitle">
+            I’m a passionate web developer specializing in building exceptional digital experiences with modern technologies.
+          </p>
+          <div class="hero-buttons">
+            <a href="projects.html" class="btn-primary">
+              View My Work
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l9.2-9.2M17 17V8H8"/></svg>
+            </a>
+            <a href="#contact" class="btn-secondary">
+              Download CV
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </a>
+          </div>
+          <div>
+            <div class="tech-stack-label">Technologies I Work With</div>
+            <div class="tech-icons">
+              <!-- HTML5 -->
+              <div class="tech-icon-box" title="HTML5">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 2l1.6 18.2L12 22l6.4-1.8L20 2H4z" fill="#E44D26"/><path d="M12 3.8v16.4l4.9-1.4 1.3-15H12z" fill="#F16529"/><path d="M8.5 7.4h7l-.2 2.2H8.7l.2 2.4h6.4l-.5 5.6-2.8.8-2.8-.8-.2-2.1H7l.4 3.7 4.6 1.3 4.6-1.3.8-9.5H8.3l.2-2.3z" fill="#FFF"/></svg>
+              </div>
+              <!-- CSS3 -->
+              <div class="tech-icon-box" title="CSS3">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 2l1.6 18.2L12 22l6.4-1.8L20 2H4z" fill="#1572B6"/><path d="M12 3.8v16.4l4.9-1.4 1.3-15H12z" fill="#33A9DC"/><path d="M8.5 7.4h7l-.2 2.2H8.7l.2 2.4h6.4l-.5 5.6-2.8.8-2.8-.8-.2-2.1H7l.4 3.7 4.6 1.3 4.6-1.3.8-9.5H8.3l.2-2.3z" fill="#FFF"/></svg>
+              </div>
+              <!-- JS -->
+              <div class="tech-icon-box" title="JavaScript">
+                <svg width="22" height="22" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#F7DF1E"/><path d="M7 16.5c0 1.5 1 2.5 2.5 2.5 1.8 0 2.5-1.1 2.5-2.8v-6.2h-1.6v6.1c0 .9-.3 1.4-1 1.4-.7 0-1-.5-1-1.3V14H7v2.5zm7-6.5h2.5c2 0 3.2 1.1 3.2 2.7 0 1.2-.7 2-1.7 2.4 1.2.4 1.9 1.4 1.9 2.7 0 1.8-1.4 2.7-3.4 2.7h-2.5V10zm1.7 3.5h.7c.9 0 1.5-.4 1.5-1.2 0-.8-.6-1.2-1.5-1.2h-.7v2.4zm0 4.3h.8c1 0 1.6-.4 1.6-1.3 0-.9-.6-1.3-1.6-1.3h-.8v2.6z" fill="#000"/></svg>
+              </div>
+              <!-- TS -->
+              <div class="tech-icon-box" title="TypeScript">
+                <svg width="22" height="22" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#3178C6"/><path d="M7 9h6v1.8h-2.1v6.2H9v-6.2H7V9zm7 4.2c.7-.4 1.5-.7 2.3-.7.9 0 1.4.4 1.4 1 0 .6-.5 1-1.6 1.4-1.8.6-2.5 1.5-2.5 2.6 0 1.7 1.4 2.5 3 2.5 1.1 0 2.1-.4 2.8-.8l-.5-1.4c-.6.4-1.4.7-2.2.7-.9 0-1.5-.4-1.5-1 0-.6.5-1 1.7-1.4 1.8-.7 2.4-1.5 2.4-2.6 0-1.6-1.3-2.5-2.9-2.5-1.1 0-2.1.3-2.8.7l.4 1.6z" fill="#FFF"/></svg>
+              </div>
+              <!-- React -->
+              <div class="tech-icon-box" title="React">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="#61DAFB"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#61DAFB" stroke-width="1.2" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#61DAFB" stroke-width="1.2" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#61DAFB" stroke-width="1.2" transform="rotate(120 12 12)"/></svg>
+              </div>
+              <!-- Next.js -->
+              <div class="tech-icon-box" title="Next.js">
+                <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#000" stroke="#444" stroke-width="1"/><path d="M15.5 8.5v7l-5.8-7H8v7h1.6v-5.2l5.6 6.8h1.9v-8.6h-1.6z" fill="#FFF"/></svg>
+              </div>
+              <!-- Git -->
+              <div class="tech-icon-box" title="Git">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21.6 10.9L13.1 2.4a1.6 1.6 0 0 0-2.2 0L8.7 4.6l2.8 2.8a1.9 1.9 0 0 1 2.4 2.4l2.7 2.7a1.9 1.9 0 1 1-1.1 1.1l-2.6-2.6v4.3a1.9 1.9 0 1 1-1.6 0V11a1.9 1.9 0 0 1-1-2.5L7.5 5.7 2.4 10.9a1.6 1.6 0 0 0 0 2.2l8.5 8.5c.6.6 1.6.6 2.2 0l8.5-8.5a1.6 1.6 0 0 0 0-2.2z" fill="#F05032"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Code Card directly on background -->
+        <div class="hero-code-col">
+          <div class="hero-code-card">
+            <div class="code-card-header">
+              <div class="code-dots">
+                <span class="code-dot dot-red"></span>
+                <span class="code-dot dot-yellow"></span>
+                <span class="code-dot dot-green"></span>
+              </div>
+              <span>&lt;/&gt; Code</span>
+            </div>
+            <div class="code-content">
+              <pre><code><span class="c-keyword">const</span> <span class="c-var">developer</span> = {
+  <span class="c-prop">name</span>: <span class="c-str">"Hamza"</span>,
+  <span class="c-prop">skills</span>: [<span class="c-str">"HTML"</span>, <span class="c-str">"CSS"</span>,
+           <span class="c-str">"JavaScript"</span>, <span class="c-str">"React"</span>],
+  <span class="c-prop">passion</span>: <span class="c-str">"Building things
+           for the web"</span>
+};</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: ABOUT ME -->
+    <section id="about">
+      <div class="container about-grid">
+        <div class="about-text-col">
+          <div class="pill-badge">ABOUT ME</div>
+          <h2 class="section-title">
+            I’m passionate about<br>creating digital solutions
+          </h2>
+          <p class="section-desc" style="margin-bottom: 30px;">
+            With 4+ years of experience in web development, I help businesses and individuals bring their ideas to life through clean, efficient, and user-friendly code.
+          </p>
+          <a href="#skills" class="btn-secondary">
+            Learn More About Me
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </a>
+        </div>
+
+        <div class="stats-grid">
+          <!-- Stat 1 -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">4+</div>
+              <div class="stat-label">Years Experience</div>
+            </div>
+          </div>
+
+          <!-- Stat 2 -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">50+</div>
+              <div class="stat-label">Projects Completed</div>
+            </div>
+          </div>
+
+          <!-- Stat 3 -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">30+</div>
+              <div class="stat-label">Happy Clients</div>
+            </div>
+          </div>
+
+          <!-- Stat 4 -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"/><path d="M18 4H6v7a6 6 0 0 0 12 0V4z"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">100%</div>
+              <div class="stat-label">Client Satisfaction</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: SKILLS -->
+    <section id="skills">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="pill-badge center">MY SKILLS</div>
+          <h2 class="section-title center">Technologies I Master</h2>
+        </div>
+
+        <div class="skills-grid">
+          <!-- HTML -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 2l1.6 18.2L12 22l6.4-1.8L20 2H4z" fill="#E44D26"/><path d="M12 3.8v16.4l4.9-1.4 1.3-15H12z" fill="#F16529"/></svg>
+                </span>
+                <span>HTML</span>
+              </div>
+              <span class="skill-pct">95%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 95%;"></div>
+            </div>
+          </div>
+
+          <!-- React.js -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="#61DAFB"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#61DAFB" stroke-width="1.2"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#61DAFB" stroke-width="1.2" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#61DAFB" stroke-width="1.2" transform="rotate(120 12 12)"/></svg>
+                </span>
+                <span>React.js</span>
+              </div>
+              <span class="skill-pct">85%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 85%;"></div>
+            </div>
+          </div>
+
+          <!-- CSS -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 2l1.6 18.2L12 22l6.4-1.8L20 2H4z" fill="#1572B6"/><path d="M12 3.8v16.4l4.9-1.4 1.3-15H12z" fill="#33A9DC"/></svg>
+                </span>
+                <span>CSS</span>
+              </div>
+              <span class="skill-pct">90%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 90%;"></div>
+            </div>
+          </div>
+
+          <!-- Next.js -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#000" stroke="#555" stroke-width="1"/><path d="M15.5 8.5v7l-5.8-7H8v7h1.6v-5.2l5.6 6.8h1.9v-8.6h-1.6z" fill="#FFF"/></svg>
+                </span>
+                <span>Next.js</span>
+              </div>
+              <span class="skill-pct">80%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 80%;"></div>
+            </div>
+          </div>
+
+          <!-- JavaScript -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#F7DF1E"/><path d="M7 16.5c0 1.5 1 2.5 2.5 2.5 1.8 0 2.5-1.1 2.5-2.8v-6.2h-1.6v6.1c0 .9-.3 1.4-1 1.4-.7 0-1-.5-1-1.3V14H7v2.5zm7-6.5h2.5c2 0 3.2 1.1 3.2 2.7 0 1.2-.7 2-1.7 2.4 1.2.4 1.9 1.4 1.9 2.7 0 1.8-1.4 2.7-3.4 2.7h-2.5V10z" fill="#000"/></svg>
+                </span>
+                <span>JavaScript</span>
+              </div>
+              <span class="skill-pct">90%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 90%;"></div>
+            </div>
+          </div>
+
+          <!-- TypeScript -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#3178C6"/><path d="M7 9h6v1.8h-2.1v6.2H9v-6.2H7V9zm7 4.2c.7-.4 1.5-.7 2.3-.7.9 0 1.4.4 1.4 1 0 .6-.5 1-1.6 1.4-1.8.6-2.5 1.5-2.5 2.6 0 1.7 1.4 2.5 3 2.5 1.1 0 2.1-.4 2.8-.8l-.5-1.4c-.6.4-1.4.7-2.2.7-.9 0-1.5-.4-1.5-1 0-.6.5-1 1.7-1.4 1.8-.7 2.4-1.5 2.4-2.6 0-1.6-1.3-2.5-2.9-2.5-1.1 0-2.1.3-2.8.7l.4 1.6z" fill="#FFF"/></svg>
+                </span>
+                <span>TypeScript</span>
+              </div>
+              <span class="skill-pct">85%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 85%;"></div>
+            </div>
+          </div>
+
+          <!-- Node.js -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2l9 5.2v10.4l-9 5.2-9-5.2V7.2L12 2z" fill="#339933"/></svg>
+                </span>
+                <span>Node.js</span>
+              </div>
+              <span class="skill-pct">80%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 80%;"></div>
+            </div>
+          </div>
+
+          <!-- Tailwind CSS -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 6c-2.7 0-4.3 1.3-5 4 1-1.3 2.2-1.8 3.5-1.5 1 .3 1.8 1 2.6 1.9C14.4 11.8 16.1 13 19 13c2.7 0 4.3-1.3 5-4-1 1.3-2.2 1.8-3.5 1.5-1-.3-1.8-1-2.6-1.9C16.6 7.2 14.9 6 12 6zM5 13c-2.7 0-4.3 1.3-5 4 1-1.3 2.2-1.8 3.5-1.5 1 .3 1.8 1 2.6 1.9C7.4 18.8 9.1 20 12 20c2.7 0 4.3-1.3 5-4-1 1.3-2.2 1.8-3.5 1.5-1-.3-1.8-1-2.6-1.9C9.6 14.2 7.9 13 5 13z" fill="#06B6D4"/></svg>
+                </span>
+                <span>Tailwind CSS</span>
+              </div>
+              <span class="skill-pct">90%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 90%;"></div>
+            </div>
+          </div>
+
+          <!-- Git -->
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-meta">
+                <span class="skill-icon-thumb">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21.6 10.9L13.1 2.4a1.6 1.6 0 0 0-2.2 0L8.7 4.6l2.8 2.8a1.9 1.9 0 0 1 2.4 2.4l2.7 2.7a1.9 1.9 0 1 1-1.1 1.1l-2.6-2.6v4.3a1.9 1.9 0 1 1-1.6 0V11a1.9 1.9 0 0 1-1-2.5L7.5 5.7 2.4 10.9a1.6 1.6 0 0 0 0 2.2l8.5 8.5c.6.6 1.6.6 2.2 0l8.5-8.5a1.6 1.6 0 0 0 0-2.2z" fill="#F05032"/></svg>
+                </span>
+                <span>Git</span>
+              </div>
+              <span class="skill-pct">85%</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-bar" style="width: 85%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: FEATURED PROJECTS -->
+    <section id="projects">
+      <div class="container">
+        <div class="section-header-center">
+          <div class="pill-badge center">FEATURED PROJECTS</div>
+          <h2 class="section-title center">Some of My Recent Work</h2>
+        </div>
+
+        <div class="projects-grid">
+          <!-- Project 1 -->
+          <div class="project-card">
+            <div class="project-preview">
+              <span class="project-num-badge">01</span>
+              <!-- CSS Mockup Graphic -->
+              <svg width="220" height="130" viewBox="0 0 220 130" fill="none">
+                <rect x="15" y="15" width="190" height="100" rx="8" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <rect x="25" y="25" width="55" height="12" rx="4" fill="#6366f1"/>
+                <rect x="25" y="45" width="70" height="6" rx="3" fill="#cbd5e1"/>
+                <rect x="25" y="56" width="50" height="6" rx="3" fill="#94a3b8"/>
+                <rect x="25" y="75" width="45" height="16" rx="4" fill="#a855f7"/>
+                <circle cx="155" cy="65" r="30" stroke="#8b5cf6" stroke-width="5" stroke-dasharray="120 40"/>
+                <rect x="135" y="55" width="40" height="8" rx="2" fill="#cbd5e1"/>
+              </svg>
+            </div>
+            <div class="project-body">
+              <h3 class="project-title">E-Commerce Platform</h3>
+              <p class="project-desc">Full-stack e-commerce solution with modern UI/UX</p>
+              <a href="projects.html" class="project-link">
+                View Project ➔
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="project-card">
+            <div class="project-preview">
+              <span class="project-num-badge">02</span>
+              <!-- CSS Mockup Graphic -->
+              <svg width="220" height="130" viewBox="0 0 220 130" fill="none">
+                <rect x="15" y="15" width="190" height="100" rx="8" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <rect x="25" y="25" width="45" height="8" rx="2" fill="#38bdf8"/>
+                <rect x="25" y="42" width="48" height="60" rx="4" fill="none" stroke="rgba(255,255,255,0.2)"/>
+                <rect x="30" y="48" width="38" height="6" rx="2" fill="#94a3b8"/>
+                <rect x="30" y="58" width="28" height="4" rx="2" fill="#cbd5e1"/>
+                <rect x="83" y="42" width="48" height="60" rx="4" fill="none" stroke="rgba(255,255,255,0.2)"/>
+                <rect x="88" y="48" width="38" height="6" rx="2" fill="#38bdf8"/>
+                <rect x="88" y="58" width="30" height="4" rx="2" fill="#cbd5e1"/>
+                <rect x="141" y="42" width="48" height="60" rx="4" fill="none" stroke="rgba(255,255,255,0.2)"/>
+                <rect x="146" y="48" width="38" height="6" rx="2" fill="#10b981"/>
+              </svg>
+            </div>
+            <div class="project-body">
+              <h3 class="project-title">Task Management App</h3>
+              <p class="project-desc">Collaborative task management application</p>
+              <a href="projects.html" class="project-link">
+                View Project ➔
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 3 -->
+          <div class="project-card">
+            <div class="project-preview">
+              <span class="project-num-badge">03</span>
+              <!-- CSS Mockup Graphic -->
+              <svg width="220" height="130" viewBox="0 0 220 130" fill="none">
+                <rect x="15" y="15" width="190" height="100" rx="8" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <path d="M25 85 L55 65 L85 75 L115 45 L145 55 L175 35 L195 40" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <circle cx="175" cy="35" r="4" fill="#10b981"/>
+                <rect x="25" y="25" width="40" height="6" rx="2" fill="#10b981"/>
+              </svg>
+            </div>
+            <div class="project-body">
+              <h3 class="project-title">Crypto Dashboard</h3>
+              <p class="project-desc">Real-time cryptocurrency tracking dashboard</p>
+              <a href="projects.html" class="project-link">
+                View Project ➔
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination Dots -->
+        <div class="pagination-dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: CONTACT & TESTIMONIAL -->
+    <section id="contact">
+      <div class="container contact-grid">
+        <!-- Col 1: CTA -->
+        <div class="glass-card">
+          <div class="pill-badge">LET'S WORK TOGETHER</div>
+          <h2 class="section-title" style="font-size: 1.85rem;">Have a project in mind?</h2>
+          <p class="section-desc" style="font-size: 0.92rem; margin-bottom: 24px;">
+            I'm always open to discussing new projects and opportunities. Let's create something amazing together!
+          </p>
+          <a href="mailto:hamzatasawar800@gmail.com" class="btn-primary" style="padding: 11px 22px;">
+            Get In Touch ↗
+          </a>
+        </div>
+
+        <!-- Col 2: Testimonial -->
+        <div class="glass-card testimonial-card" style="display: flex; flex-direction: column;">
+          <div class="quote-icon">“</div>
+          <p class="testimonial-quote">
+            Hamza is an exceptional developer who delivers high-quality work on time. His attention to detail and problem-solving skills are outstanding.
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">SJ</div>
+            <div>
+              <div class="author-name">Sarah Johnson</div>
+              <div class="author-role">CEO, TechStart</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 3: Follow Me & Contact Info -->
+        <div class="glass-card">
+          <div class="social-title">FOLLOW ME</div>
+          <div class="social-icons-row">
+            <!-- GitHub -->
+            <a href="https://github.com/hamzatasawar-1" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            </a>
+            <!-- LinkedIn -->
+            <a href="#" class="social-btn" title="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            <!-- Twitter/X -->
+            <a href="https://x.com/hamza_1122_1" target="_blank" rel="noopener noreferrer" class="social-btn" title="Twitter / X">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/ham.za78614" target="_blank" rel="noopener noreferrer" class="social-btn" title="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+
+          <a href="mailto:hamzatasawar800@gmail.com" class="contact-item">
+            <svg class="contact-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>hamzatasawar800@gmail.com</span>
+          </a>
+
+          <a href="tel:+923445630020" class="contact-item">
+            <svg class="contact-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>+92 344 5630020</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>© 2026 Hamza Developer. All rights reserved.</div>
+        <div>Made with ❤️ by Hamza</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ULTRA-SMOOTH SCROLL ANIMATION SCRIPT -->
+  <script>
+    (function () {
+      const TOTAL_FRAMES = 240;
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+
+      const images = new Array(TOTAL_FRAMES + 1);
+      const isLoaded = new Array(TOTAL_FRAMES + 1).fill(false);
+      let lastDrawnIndex = 1;
+
+      let targetProgress = 0;
+      let currentProgress = 0;
+      const LERP_FACTOR = 0.085;
+
+      // Construct file path for frame (1-based index)
+      function getFramePath(index) {
+        const padded = String(index).padStart(3, '0');
+        return `ezgif-frame-${padded}.jpg`;
+      }
+
+      // Resize canvas with devicePixelRatio for ultra-sharp rendering
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        if (isLoaded[lastDrawnIndex]) {
+          drawFrame(lastDrawnIndex);
+        }
+      }
+
+      window.addEventListener('resize', resizeCanvas, { passive: true });
+
+      // High-performance draw with object-fit: cover
+      function drawFrame(index) {
+        let img = images[index];
+        let renderIndex = index;
+
+        // If requested frame isn't loaded yet, find nearest loaded frame
+        if (!img || !isLoaded[index]) {
+          let nearest = lastDrawnIndex;
+          let minDiff = Infinity;
+          for (let i = 1; i <= TOTAL_FRAMES; i++) {
+            if (isLoaded[i]) {
+              const diff = Math.abs(i - index);
+              if (diff < minDiff) {
+                minDiff = diff;
+                nearest = i;
+              }
+            }
+          }
+          img = images[nearest];
+          renderIndex = nearest;
+        }
+
+        if (!img || !isLoaded[renderIndex]) return;
+
+        const cw = canvas.width;
+        const ch = canvas.height;
+        const iw = img.naturalWidth || img.width;
+        const ih = img.naturalHeight || img.height;
+        if (!iw || !ih) return;
+
+        const scale = Math.max(cw / iw, ch / ih);
+        const dw = iw * scale;
+        const dh = ih * scale;
+        const dx = (cw - dw) * 0.5;
+        const dy = (ch - dh) * 0.5;
+
+        ctx.drawImage(img, dx, dy, dw, dh);
+        lastDrawnIndex = renderIndex;
+      }
+
+      // Preload images asynchronously
+      function preloadImages() {
+        const firstImg = new Image();
+        firstImg.src = getFramePath(1);
+        firstImg.onload = () => {
+          images[1] = firstImg;
+          isLoaded[1] = true;
+          resizeCanvas();
+          drawFrame(1);
+
+          // Preload remaining frames
+          for (let i = 2; i <= TOTAL_FRAMES; i++) {
+            const img = new Image();
+            img.src = getFramePath(i);
+            img.onload = () => {
+              if (img.decode) {
+                img.decode().then(() => {
+                  images[i] = img;
+                  isLoaded[i] = true;
+                }).catch(() => {
+                  images[i] = img;
+                  isLoaded[i] = true;
+                });
+              } else {
+                images[i] = img;
+                isLoaded[i] = true;
+              }
+            };
+          }
+        };
+      }
+
+      // Update scroll target progress
+      function updateScrollProgress() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        targetProgress = maxScroll > 0 ? Math.min(Math.max(scrollTop / maxScroll, 0), 1) : 0;
+      }
+
+      window.addEventListener('scroll', updateScrollProgress, { passive: true });
+
+      // Animation loop with lerp for silky smooth scrub
+      function renderLoop() {
+        const diff = targetProgress - currentProgress;
+        if (Math.abs(diff) > 0.00001) {
+          currentProgress += diff * LERP_FACTOR;
+        } else {
+          currentProgress = targetProgress;
+        }
+
+        const continuousFrame = 1 + currentProgress * (TOTAL_FRAMES - 1);
+        const targetFrameIndex = Math.min(TOTAL_FRAMES, Math.max(1, Math.round(continuousFrame)));
+
+        if (targetFrameIndex !== lastDrawnIndex || !isLoaded[lastDrawnIndex]) {
+          drawFrame(targetFrameIndex);
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      // Initialize
+      resizeCanvas();
+      preloadImages();
+      updateScrollProgress();
+      currentProgress = targetProgress;
+      renderLoop();
+
+      // Navbar active link highlight on scroll
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      window.addEventListener('scroll', () => {
+        let current = '';
+        const scrollY = window.pageYOffset;
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 120;
+          const sectionHeight = section.offsetHeight;
+          if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            current = section.getAttribute('id');
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+          }
+        });
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
