@@ -38,6 +38,9 @@
       overflow-x: hidden;
       line-height: 1.6;
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.6);
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100vw;
     }
 
     /* Minimal Custom Scrollbar */
@@ -65,12 +68,17 @@
       z-index: 0;
       pointer-events: none;
       overflow: hidden;
+      transform: translateZ(0);
+      will-change: transform;
+      -webkit-transform: translateZ(0);
     }
 
     canvas {
       width: 100%;
       height: 100%;
       display: block;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
 
     /* Main Content Layer directly on background */
@@ -78,6 +86,7 @@
       position: relative;
       z-index: 2;
       width: 100%;
+      overflow-x: clip;
     }
 
     .container {
@@ -964,16 +973,25 @@
     /* Standard Mobile Phones (<= 560px) */
     @media (max-width: 560px) {
       .container {
-        padding: 0 18px;
+        padding: 0 16px;
       }
 
       header.navbar {
-        padding: 16px 0;
+        padding: 14px 0;
+      }
+
+      #hero {
+        padding: 100px 0 50px;
       }
 
       .hero-title {
-        font-size: clamp(2rem, 8vw, 2.7rem);
+        font-size: clamp(1.9rem, 7.8vw, 2.6rem);
         line-height: 1.18;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 24px;
       }
 
       .hero-buttons {
@@ -986,7 +1004,13 @@
         width: 100%;
         justify-content: center;
         text-align: center;
-        padding: 13px 20px;
+        padding: 14px 20px;
+        min-height: 48px;
+      }
+
+      .btn-hire {
+        padding: 12px 18px;
+        min-height: 44px;
       }
 
       .tech-icons {
@@ -995,31 +1019,67 @@
       }
 
       .tech-icon-box {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
       }
 
+      /* Hero code card — prevent horizontal overflow on 320px */
       .hero-code-card {
-        padding: 16px 18px;
-        font-size: clamp(0.72rem, 3.2vw, 0.84rem);
+        padding: 14px 14px;
+        font-size: clamp(0.68rem, 3.1vw, 0.82rem);
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+      }
+
+      .hero-code-card pre {
+        overflow-x: auto;
+        max-width: 100%;
+      }
+
+      .code-content pre code {
+        white-space: pre;
+        font-size: clamp(0.65rem, 2.8vw, 0.8rem);
       }
 
       .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
       }
 
       .stat-card {
-        padding: 16px 18px;
+        padding: 14px 14px;
+        gap: 10px;
+      }
+
+      .stat-num {
+        font-size: 1.45rem;
       }
 
       .section-title {
-        font-size: clamp(1.75rem, 6.5vw, 2.2rem);
+        font-size: clamp(1.6rem, 6.5vw, 2.2rem);
       }
 
       .glass-card {
-        padding: 22px 18px;
+        padding: 20px 16px;
+      }
+
+      .social-icons-row {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .social-btn {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+      }
+
+      .contact-item {
+        font-size: 0.88rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
       }
 
       .footer-inner {
@@ -1028,29 +1088,39 @@
         text-align: center;
       }
 
-      .contact-item {
-        font-size: 0.88rem;
-        word-break: break-all;
+      .section-header-center {
+        margin-bottom: 36px;
       }
     }
 
     /* Ultra-Small Phones (<= 380px) */
     @media (max-width: 380px) {
       .container {
-        padding: 0 14px;
+        padding: 0 12px;
       }
 
       .brand-logo {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
+        gap: 6px;
       }
 
       .pill-badge {
-        font-size: 0.65rem;
+        font-size: 0.62rem;
         padding: 5px 10px;
       }
 
+      .hero-title {
+        font-size: clamp(1.7rem, 8.5vw, 2.2rem);
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
       .hero-code-card {
-        padding: 12px 12px;
+        padding: 10px 10px;
+        font-size: 0.65rem;
       }
     }
   </style>
@@ -1573,7 +1643,12 @@
 
       let targetProgress = 0;
       let currentProgress = 0;
-      const LERP_FACTOR = 0.085;
+      let rafId = null;
+      let rafActive = false;
+
+      // Adaptive LERP: faster on mobile touch screens for responsive scrubbing
+      const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+      const LERP_FACTOR = isMobile ? 0.22 : 0.085;
 
       // Construct file path for frame (1-based index)
       function getFramePath(index) {
@@ -1581,39 +1656,41 @@
         return `ezgif-frame-${padded}.jpg`;
       }
 
-      // Resize canvas with devicePixelRatio for ultra-sharp rendering
+      // Resize canvas — cap DPR on mobile to prevent GPU fillrate overload
       function resizeCanvas() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const dpr = window.innerWidth <= 768
+          ? Math.min(window.devicePixelRatio || 1, 1.25)
+          : Math.min(window.devicePixelRatio || 1, 2);
         const w = window.innerWidth;
         const h = window.innerHeight;
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingQuality = isMobile ? 'medium' : 'high';
 
         if (isLoaded[lastDrawnIndex]) {
           drawFrame(lastDrawnIndex);
         }
       }
 
-      window.addEventListener('resize', resizeCanvas, { passive: true });
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resizeCanvas, 80);
+      }, { passive: true });
 
       // High-performance draw with object-fit: cover
       function drawFrame(index) {
         let img = images[index];
         let renderIndex = index;
 
-        // If requested frame isn't loaded yet, find nearest loaded frame
         if (!img || !isLoaded[index]) {
           let nearest = lastDrawnIndex;
           let minDiff = Infinity;
           for (let i = 1; i <= TOTAL_FRAMES; i++) {
             if (isLoaded[i]) {
               const diff = Math.abs(i - index);
-              if (diff < minDiff) {
-                minDiff = diff;
-                nearest = i;
-              }
+              if (diff < minDiff) { minDiff = diff; nearest = i; }
             }
           }
           img = images[nearest];
@@ -1638,7 +1715,7 @@
         lastDrawnIndex = renderIndex;
       }
 
-      // Preload images asynchronously
+      // Priority preload: frame 1 → keyframes every 8th → rest in batches
       function preloadImages() {
         const firstImg = new Image();
         firstImg.src = getFramePath(1);
@@ -1648,41 +1725,76 @@
           resizeCanvas();
           drawFrame(1);
 
-          // Preload remaining frames
-          for (let i = 2; i <= TOTAL_FRAMES; i++) {
+          // Step 1: keyframe samples (every 8th frame) for fast seeking
+          const keyframes = [];
+          for (let i = 2; i <= TOTAL_FRAMES; i += 8) keyframes.push(i);
+
+          let kfDone = 0;
+          keyframes.forEach(idx => {
             const img = new Image();
-            img.src = getFramePath(i);
-            img.onload = () => {
-              if (img.decode) {
-                img.decode().then(() => {
-                  images[i] = img;
-                  isLoaded[i] = true;
-                }).catch(() => {
-                  images[i] = img;
-                  isLoaded[i] = true;
-                });
-              } else {
-                images[i] = img;
-                isLoaded[i] = true;
-              }
+            img.src = getFramePath(idx);
+            img.onload = img.onerror = () => {
+              images[idx] = img;
+              isLoaded[idx] = true;
+              kfDone++;
+              // After keyframes done, batch-load remaining frames
+              if (kfDone === keyframes.length) batchLoadRemaining();
             };
-          }
+          });
         };
       }
 
-      // Update scroll target progress
+      function batchLoadRemaining() {
+        const remaining = [];
+        for (let i = 2; i <= TOTAL_FRAMES; i++) {
+          if (!isLoaded[i]) remaining.push(i);
+        }
+        const BATCH = isMobile ? 6 : 12;
+        let idx = 0;
+        function loadNext() {
+          if (idx >= remaining.length) return;
+          const end = Math.min(idx + BATCH, remaining.length);
+          let pending = end - idx;
+          for (let j = idx; j < end; j++) {
+            const frameIdx = remaining[j];
+            const img = new Image();
+            img.src = getFramePath(frameIdx);
+            img.onload = img.onerror = () => {
+              images[frameIdx] = img;
+              isLoaded[frameIdx] = true;
+              if (--pending === 0) loadNext();
+            };
+          }
+          idx = end;
+        }
+        loadNext();
+      }
+
+      // Cache maxScroll to avoid costly reflow inside scroll handler
+      let maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      window.addEventListener('resize', () => {
+        maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      }, { passive: true });
+
       function updateScrollProgress() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        targetProgress = maxScroll > 0 ? Math.min(Math.max(scrollTop / maxScroll, 0), 1) : 0;
+        targetProgress = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
+        startRAF();
       }
 
       window.addEventListener('scroll', updateScrollProgress, { passive: true });
 
-      // Animation loop with lerp for silky smooth scrub
+      // Demand-based RAF: start on scroll/touch, sleep when settled
+      function startRAF() {
+        if (!rafActive) {
+          rafActive = true;
+          rafId = requestAnimationFrame(renderLoop);
+        }
+      }
+
       function renderLoop() {
         const diff = targetProgress - currentProgress;
-        if (Math.abs(diff) > 0.00001) {
+        if (Math.abs(diff) > 0.00004) {
           currentProgress += diff * LERP_FACTOR;
         } else {
           currentProgress = targetProgress;
@@ -1695,7 +1807,12 @@
           drawFrame(targetFrameIndex);
         }
 
-        requestAnimationFrame(renderLoop);
+        // Keep looping until fully settled
+        if (Math.abs(diff) > 0.00004) {
+          rafId = requestAnimationFrame(renderLoop);
+        } else {
+          rafActive = false;
+        }
       }
 
       // Initialize
@@ -1703,7 +1820,8 @@
       preloadImages();
       updateScrollProgress();
       currentProgress = targetProgress;
-      renderLoop();
+      // Draw at least frame 1 immediately
+      startRAF();
 
       // Navbar active link highlight on scroll
       const sections = document.querySelectorAll('section[id]');
@@ -1719,12 +1837,9 @@
             current = section.getAttribute('id');
           }
         });
-
         navLinks.forEach(link => {
           link.classList.remove('active');
-          if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-          }
+          if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
         });
       }, { passive: true });
 
@@ -1739,7 +1854,6 @@
           mobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
 
-        // Close mobile drawer on link click
         navList.querySelectorAll('a').forEach(link => {
           link.addEventListener('click', () => {
             navList.classList.remove('active');
@@ -1748,7 +1862,6 @@
           });
         });
 
-        // Close on tap outside
         document.addEventListener('click', (e) => {
           if (!mobileBtn.contains(e.target) && !navList.contains(e.target) && navList.classList.contains('active')) {
             navList.classList.remove('active');
@@ -1759,7 +1872,7 @@
       }
 
       window.addEventListener('orientationchange', () => {
-        setTimeout(resizeCanvas, 150);
+        setTimeout(() => { resizeCanvas(); maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); }, 200);
       }, { passive: true });
     })();
   </script>
