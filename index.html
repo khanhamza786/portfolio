@@ -64,13 +64,16 @@
       top: 0;
       left: 0;
       width: 100vw;
+      width: 100dvw;   /* Dynamic viewport — accounts for mobile scrollbars */
       height: 100vh;
+      height: 100dvh;  /* Dynamic viewport height — mobile address bar aware */
       z-index: 0;
       pointer-events: none;
       overflow: hidden;
       transform: translateZ(0);
       will-change: transform;
       -webkit-transform: translateZ(0);
+      background: #000; /* Black baseline so no white flash between frames */
     }
 
     canvas {
@@ -79,6 +82,8 @@
       display: block;
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
+      image-rendering: -webkit-optimize-contrast; /* Safari */
+      image-rendering: high-quality;
     }
 
     /* Main Content Layer directly on background */
@@ -1656,17 +1661,22 @@
         return `ezgif-frame-${padded}.jpg`;
       }
 
-      // Resize canvas — cap DPR on mobile to prevent GPU fillrate overload
+      // Resize canvas — full DPR on all devices for maximum sharpness
       function resizeCanvas() {
-        const dpr = window.innerWidth <= 768
-          ? Math.min(window.devicePixelRatio || 1, 1.25)
-          : Math.min(window.devicePixelRatio || 1, 2);
+        // Use full device pixel ratio (up to 2×) for crisp, pixel-perfect rendering on all screens
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const w = window.innerWidth;
         const h = window.innerHeight;
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
+
+        // Always use high-quality smoothing — no quality loss on any device
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = isMobile ? 'medium' : 'high';
+        ctx.imageSmoothingQuality = 'high';
+
+        // Fill black to prevent white flash before first frame
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         if (isLoaded[lastDrawnIndex]) {
           drawFrame(lastDrawnIndex);
@@ -1679,7 +1689,7 @@
         resizeTimer = setTimeout(resizeCanvas, 80);
       }, { passive: true });
 
-      // High-performance draw with object-fit: cover
+      // Smart responsive draw — crisp cover with orientation-aware focal anchor
       function drawFrame(index) {
         let img = images[index];
         let renderIndex = index;
@@ -1705,11 +1715,24 @@
         const ih = img.naturalHeight || img.height;
         if (!iw || !ih) return;
 
+        // Object-fit: cover — scale to fill the canvas, keeping aspect ratio
         const scale = Math.max(cw / iw, ch / ih);
         const dw = iw * scale;
         const dh = ih * scale;
-        const dx = (cw - dw) * 0.5;
-        const dy = (ch - dh) * 0.5;
+
+        // Focal anchor strategy: portrait phones get top-center anchor
+        // so the subject (usually top/center of frame) stays sharp and visible,
+        // not brutally cropped at center which may miss the key visuals.
+        const isPortrait = ch > cw;
+        const dx = (cw - dw) * 0.5; // always horizontal-center
+        // Portrait: anchor ~25% from top so subject stays in frame
+        // Landscape: standard center (0.5)
+        const verticalAnchor = isPortrait ? 0.25 : 0.5;
+        const dy = (ch - dh) * verticalAnchor;
+
+        // Clear with black before draw (prevents stale pixel ghosting on orientation change)
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, cw, ch);
 
         ctx.drawImage(img, dx, dy, dw, dh);
         lastDrawnIndex = renderIndex;
@@ -1872,8 +1895,22 @@
       }
 
       window.addEventListener('orientationchange', () => {
-        setTimeout(() => { resizeCanvas(); maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); }, 200);
+        // Wait for iOS viewport to fully settle after rotation (200ms isn't always enough)
+        setTimeout(() => {
+          resizeCanvas();
+          maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+          startRAF();
+        }, 300);
       }, { passive: true });
+
+      // Visual Viewport API: handles mobile browser address bar show/hide
+      // This fires when the visible area changes (e.g. keyboard open, address bar hides)
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(resizeCanvas, 60);
+        }, { passive: true });
+      }
     })();
   </script>
 </body>
